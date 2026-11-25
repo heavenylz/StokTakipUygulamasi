@@ -1,0 +1,13 @@
+test_fk (__main__.TestSchema.test_fk) ... ok
+test_insufficient (__main__.TestSchema.test_insufficient) ... ok
+test_low_stock (__main__.TestSchema.test_low_stock) ... ok
+test_nonnegative (__main__.TestSchema.test_nonnegative) ... ok
+test_price_exact (__main__.TestSchema.test_price_exact) ... ok
+test_roles (__main__.TestSchema.test_roles) ... ok
+test_sale_cancel (__main__.TestSchema.test_sale_cancel) ... ok
+test_unique (__main__.TestSchema.test_unique) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.007s
+
+OK

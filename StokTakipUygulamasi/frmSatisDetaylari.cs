@@ -1,0 +1,17 @@
+using System.Data;
+namespace StokTakipUygulamasi;
+internal sealed class frmSatisDetaylari:Form
+{
+    readonly DataGridView sales,items;readonly TextBox total,customer,person;readonly DateTimePicker date;long selected;
+    public frmSatisDetaylari(){Ui.Setup(this,"SATIŞ DETAYLARI",1200,650);
+        var root=UiLayout.Root(this,3);UiLayout.Row(root,0,52);UiLayout.Row(root,1,100);UiLayout.Row(root,2,100,false);UiLayout.Add(root,UiLayout.Heading("Satış detayları",20),0,0);
+        var filters=UiLayout.Card(3,1);UiLayout.Add(root,filters,0,1,margin:new Padding(0,0,0,12));customer=UiLayout.Text();person=UiLayout.Text();date=new DateTimePicker{Format=DateTimePickerFormat.Short,ShowCheckBox=true,Checked=false};UiLayout.Add(filters,UiLayout.Field("Müşteri adı",customer),0,0,margin:new Padding(0,0,6,0));UiLayout.Add(filters,UiLayout.Field("Personel adı",person),1,0,margin:new Padding(6,0,6,0));UiLayout.Add(filters,UiLayout.Field("Satış tarihi",date),2,0,margin:new Padding(6,0,0,0));
+        var body=UiLayout.Table(2,1);UiLayout.Col(body,0,58,false);UiLayout.Col(body,1,42,false);UiLayout.Add(root,body,0,2);
+        var left=UiLayout.Card(1,2);UiLayout.Row(left,0,38);UiLayout.Row(left,1,100,false);UiLayout.Add(body,left,0,0,margin:new Padding(0,0,6,0));UiLayout.Add(left,UiLayout.Heading("Satış listesi"),0,0);sales=UiLayout.Grid();UiLayout.Add(left,sales,0,1);sales.CellClick+=(_,e)=>{if(e.RowIndex>=0)Ui.Safe(LoadDetails);};
+        var right=UiLayout.Card(1,3);UiLayout.Row(right,0,38);UiLayout.Row(right,1,100,false);UiLayout.Row(right,2,70);UiLayout.Add(body,right,1,0,margin:new Padding(6,0,0,0));UiLayout.Add(right,UiLayout.Heading("Satılan ürünler"),0,0);items=UiLayout.Grid();UiLayout.Add(right,items,0,1);var footer=UiLayout.Table(2,1,Theme.Surface);total=UiLayout.Text(readOnly:true);UiLayout.Add(footer,UiLayout.Field("Satış toplamı",total),0,0,margin:new Padding(0,8,6,0));UiLayout.Add(footer,UiLayout.Button("Satışı iptal et",Cancel,danger:true),1,0,margin:new Padding(6,32,0,0));UiLayout.Add(right,footer,0,2);
+        customer.TextChanged+=(_,_)=>Ui.Safe(Reload);person.TextChanged+=(_,_)=>Ui.Safe(Reload);date.ValueChanged+=(_,_)=>Ui.Safe(Reload);Reload();
+    }
+    void Reload(){Ui.Bind(sales,Db.Query("SELECT s.satis_id AS Kod,m.ad_soyad AS Müşteri,p.ad||' '||p.soyad AS Personel,s.islemTarihi AS Tarih,s.notlar AS Notlar FROM satislar s JOIN musteriler m ON m.id=s.musteri_id JOIN personeller p ON p.id=s.personel_id WHERE (tr_contains(m.ad_soyad,@p0) OR @p0='') AND (tr_contains(p.ad||' '||p.soyad,@p1) OR @p1='') AND (@p2='' OR substr(s.islemTarihi,1,10)=@p2) ORDER BY s.satis_id DESC",customer.Text.Trim(),person.Text.Trim(),date.Checked?date.Value.ToString("yyyy-MM-dd",System.Globalization.CultureInfo.InvariantCulture):""));selected=0;items.DataSource=null;total.Clear();}
+    void LoadDetails(){selected=Ui.Selected(sales);var d=Db.Query("SELECT u.urun_kodu AS Kod,u.urun_adi AS [Ürün Adı],d.miktar AS Miktar,d.fiyat/100.0 AS [Birim Fiyat],d.miktar*d.fiyat/100.0 AS Toplam FROM satis_detaylari d JOIN urunler u ON u.urun_kodu=d.urun_kodu WHERE d.satis_id=@p0",selected);Ui.Bind(items,d);total.Text=d.Rows.Cast<DataRow>().Sum(r=>Convert.ToDecimal(r["Toplam"])).ToString("N2")+" ₺";}
+    void Cancel(){if(selected==0)throw new InvalidOperationException("İptal edilecek satışı seçiniz.");if(!Ui.Confirm("Seçili satış iptal edilsin mi? Ürünler stoka geri eklenecektir."))return;Db.Cancel(selected);Reload();Ui.Info("Satış iptal edildi.");}
+}

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RootNamespace>StokTakipUygulamasi</RootNamespace><AssemblyName>StokTakipUygulamasi</AssemblyName><Version>4.0.0</Version><Authors>heavenylz</Authors><Copyright>© 2026 heavenylz</Copyright><RepositoryUrl>https://github.com/heavenylz</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup><PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" /><EmbeddedResource Include="schema.sql" /></ItemGroup>
+</Project>
